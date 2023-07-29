@@ -29,7 +29,7 @@ while True:
             pass
     encode(process_data, "data.json")
     print("Dictionary saved to JSON file successfully.")
-    time.sleep(10)
+    time.sleep(2)
 
     encode(process_data, "data.json")
 
