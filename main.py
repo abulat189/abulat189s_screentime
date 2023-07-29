@@ -1,38 +1,16 @@
-import psutil
-import time
-import json
+import concurrent.futures
 
-file_path = "data.json"
-def encode(data, file_path):
-    with open(file_path, "w") as json_file:
-        json.dump(data, json_file)
-def load(file_path):
-    with open(file_path, "r") as json_file:
-        return json.load(json_file)
+def run_script(script):
+    subprocess.run(['python', script])
 
-while True:
-    process_data = load("data.json")
-    for process in psutil.process_iter(['pid', 'name', 'create_time']):
-        try:
-            process_name = process.info['name']
-            pid = process.info['pid']
-            running_time = time.time() - process.info['create_time']
+# Replace 'script1.py' and 'script2.py' with the actual filenames of your scripts
+scripts = ['getprocs', 'app.py']
 
-            process_data[process_name] = {
-                'pid': pid,
-                'running_time': running_time
-            }
-            running = time.time() - process.info['create_time']
-            print(
-                f'Process {process.name()} with PID {process.pid}  {running:.2f} seconds')
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
-    print("Dictionary saved to JSON file successfully.")
-    time.sleep(10)
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = [executor.submit(run_script, script) for script in scripts]
 
-    encode(process_data, "data.json")
-
-
-
+# Wait for all the concurrent scripts to finish (optional)
+for future in concurrent.futures.as_completed(futures):
+    pass
 
 
