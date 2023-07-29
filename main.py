@@ -12,31 +12,25 @@ def load(file_path):
 
 while True:
     process_data = load("data.json")
+    for process in psutil.process_iter(['pid', 'name', 'create_time']):
+        try:
+            process_name = process.info['name']
+            pid = process.info['pid']
+            running_time = time.time() - process.info['create_time']
 
-    import psutil
-    import time
+            process_data[process_name] = {
+                'pid': pid,
+                'running_time': running_time
+            }
+            running = time.time() - process.info['create_time']
+            print(
+                f'Process {process.name()} with PID {process.pid}  {running:.2f} seconds')
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    print("Dictionary saved to JSON file successfully.")
+    time.sleep(10)
 
-    while True:
-        for process in psutil.process_iter(['pid', 'name', 'create_time']):
-            try:
-                process_name = process.info['name']
-                pid = process.info['pid']
-                running_time = time.time() - process.info['create_time']
-
-                process_data[process_name] = {
-                    'pid': pid,
-                    'running_time': running_time
-                }
-                running = time.time() - process.info['create_time']
-                print(
-                    f'Process {process.name()} with PID {process.pid}  {running:.2f} seconds')
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
-        time.sleep(10)
-
-        encode(process_data, "data.json")
-
-        print("Dictionary saved to JSON file successfully.")
+    encode(process_data, "data.json")
 
 
 
