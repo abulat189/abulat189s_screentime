@@ -5,19 +5,44 @@
 </head>
 <body>
     <h1>Process Data</h1>
-    <table border="1">
+    <table border="1" id="processTable">
         <tr>
             <th>Process Name</th>
             <th>PID</th>
             <th>Running Time (seconds)</th>
         </tr>
-        {% for process_name, data in process_data.items() %}
-        <tr>
-            <td>{{ process_name }}</td>
-            <td>{{ data['pid'] }}</td>
-            <td>{{ data['running_time'] }}</td>
-        </tr>
-        {% endfor %}
     </table>
+
+    <script>
+        function updateProcessData() {
+            fetch('/api/process_data')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('processTable');
+                    table.innerHTML = `
+                        <tr>
+                            <th>Process Name</th>
+                            <th>PID</th>
+                            <th>Running Time (seconds)</th>
+                        </tr>
+                    `;
+
+                    for (const [processName, { pid, running_time }] of Object.entries(data)) {
+                        const row = table.insertRow();
+                        row.innerHTML = `
+                            <td>${processName}</td>
+                            <td>${pid}</td>
+                            <td>${running_time.toFixed(2)}</td>
+                        `;
+                    }
+                });
+        }
+
+        // Update process data every 5 seconds (adjust as needed)
+        setInterval(updateProcessData, 5000);
+
+        // Initial update on page load
+        updateProcessData();
+    </script>
 </body>
 </html>

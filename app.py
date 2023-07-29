@@ -1,6 +1,6 @@
 import time
 import json
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
@@ -18,8 +18,12 @@ def save_process_data_to_json(process_data):
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/api/process_data')
+def api_process_data():
     process_data = load_process_data_from_json()
-    return render_template('index.html', process_data=process_data)
+    return jsonify(process_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
