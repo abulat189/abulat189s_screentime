@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Process Data</title>
+</head>
+<body>
+    <h1>Process Data</h1>
+    <table border="1">
+        <tr>
+            <th>Process Name</th>
+            <th>PID</th>
+            <th>Running Time (seconds)</th>
+        </tr>
+        {% for process_name, data in process_data.items() %}
+        <tr>
+            <td>{{ process_name }}</td>
+            <td>{{ data['pid'] }}</td>
+            <td>{{ data['running_time'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
