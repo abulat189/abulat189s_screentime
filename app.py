@@ -1,5 +1,6 @@
 from textual.app import App, ComposeResult
-from textual.widgets import DataTable
+from textual.widgets import DataTable, Header
+from textual import events
 import time
 import json
 
@@ -21,22 +22,30 @@ def load(file_path):
 class screentimes(App):
     def compose(self) -> ComposeResult:
         yield DataTable()
+        yield Header(name="abulat189s_screentime", show_clock=True)
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
         table.add_columns("Application", "Time")
         for app in usage_times:
-            table.add_row(app, seconds_to_hms(usage_times[app]))
-        for app in usage_times:
-            table.update_cell(app, "Application", app)
-            table.update_cell(app, "Time", seconds_to_hms(usage_times[app]))
+            table.add_row(app, seconds_to_hms(usage_times[app]), key=app)
 
-    # def on_button_pressed(self) -> None:
-    #     table = self.query_one(DataTable)
-    #     for app in usage_times:
-    #         table.update_cell(app, "Application", app)
-    #         table.update_cell(app, "Time", seconds_to_hms(usage_times[app]))
-    #     time.sleep(2)
+    def on_key(self, event: events.Key("r", "r")) -> None:
+        table = self.query_one(DataTable)
+        table.add_row("test", "test")
+        table.clear()
+        time.sleep(5)
+        for app in usage_times:
+            table.add_row(app, seconds_to_hms(usage_times[app]), key=app)
+
+    # async def on_key(self, event):
+    #     if event.key == "enter":
+    #         table = self.query_one(DataTable)
+    #         for app in usage_times:
+    #             table.update_cell(app, 'Time', seconds_to_hms(usage_times[app]))
+
+    def on_button_pressed(self) -> None:
+        self.exit()
 
 
 # Your dictionary of usage times
