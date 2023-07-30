@@ -5,6 +5,13 @@ import time
 data_path = "data/data.json"
 
 
+def seconds_to_hms(seconds):
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
 def encode(data, file_path):
     with open(file_path, "w") as json_file:
         json.dump(data, json_file)
@@ -31,7 +38,6 @@ if is_json_file_empty(data_path):
 else:
     daily_dict = load(data_path)
 
-
 encode(daily_dict, data_path)
 
 while True:
@@ -42,6 +48,7 @@ while True:
         daily_dict[active_window] = 0
     else:
         daily_dict[active_window] += 1
-    print(active_window, daily_dict[active_window])
+
+    print(active_window, seconds_to_hms(daily_dict[active_window]))
     encode(daily_dict, data_path)
-    time.sleep(1)
+    time.sleep(2)
