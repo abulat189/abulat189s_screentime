@@ -19,5 +19,11 @@ encode(daily_dict, "data.json")
 while True:
     daily_dict = load("data.json")
     active_window = fetch_active_window.get_active_window_title()
-    print(active_window)
+    if active_window not in daily_dict:
+        print("NOT FOUND")
+        daily_dict[active_window] = 0
+    else:
+        daily_dict[active_window] += 1
+    print(active_window, daily_dict[active_window])
+    encode(daily_dict, "data.json")
     time.sleep(1)
