@@ -1,7 +1,8 @@
-import fetch_active_window
-import json
+from flask import Flask, jsonify
 import time
+import json
 
+app = Flask(__name__)
 data_path = "data/data.json"
 
 
@@ -12,43 +13,67 @@ def seconds_to_hms(seconds):
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
-def encode(data, file_path):
-    with open(file_path, "w") as json_file:
-        json.dump(data, json_file)
-
-
 def load(file_path):
     with open(file_path, "r") as json_file:
         return json.load(json_file)
 
 
-def is_json_file_empty(file_path):
-    try:
-        with open(file_path, "r") as json_file:
-            data = json.load(json_file)
-            if not data:
-                return True  # The JSON data is empty
-            return False  # The JSON data is not empty
-    except (FileNotFoundError, json.JSONDecodeError):
-        return True
+# Your dictionary of usage times
+usage_times = load(data_path)
 
 
-if is_json_file_empty(data_path):
-    daily_dict = {}
-else:
-    daily_dict = load(data_path)
+@app.route('/')
+def index():
+    return """
+    <html>
+        <head>
+            <script>
+                function updateData() {
+                    fetch('/data')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update the HTML table with the 'data' received from the server
+                        const tableBody = document.getElementById('tableBody');
+                        tableBody.innerHTML = '';
 
-encode(daily_dict, data_path)
+                        for (const [app, time] of Object.entries(data)) {
+                            const row = tableBody.insertRow();
+                            const cell1 = row.insertCell();
+                            const cell2 = row.insertCell();
+                            cell1.innerHTML = app;
+                            cell2.innerHTML = time;
+                        }
+                    });
+                }
+                setInterval(updateData, 5000); // Update every 5 seconds
+            </script>
+        </head>
+        <body>
+            <h1>Usage Times:</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Application</th>
+                        <th>Usage Time</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </body>
+    </html>
+    """
 
-while True:
-    daily_dict = load(data_path)
-    active_window = fetch_active_window.get_active_window_title()
-    if active_window not in daily_dict:
-        print("NOT FOUND")
-        daily_dict[active_window] = 0
-    else:
-        daily_dict[active_window] += 1
 
-    print(active_window, seconds_to_hms(daily_dict[active_window]))
-    encode(daily_dict, data_path)
-    time.sleep(2)
+@app.route('/data')
+def get_data():
+    # Simulate data update with the current timestamp
+    usage_times = load(data_path)
+    for app in usage_times:
+        usage_times[app] = int(time.time())
+
+    return jsonify(usage_times)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
