@@ -30,6 +30,8 @@ if is_json_file_empty(data_path):
     daily_dict = {}
 else:
     daily_dict = load(data_path)
+
+
 encode(daily_dict, data_path)
 
 while True:
