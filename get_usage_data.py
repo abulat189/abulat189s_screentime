@@ -18,8 +18,11 @@ def encode(data, file_path):
 
 
 def load(file_path):
-    with open(file_path, "r") as json_file:
-        return json.load(json_file)
+    try:
+        with open(file_path, "r") as json_file:
+            return json.load(json_file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
 
 
 def is_json_file_empty(file_path):
