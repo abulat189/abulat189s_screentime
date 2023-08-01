@@ -22,10 +22,16 @@ def load(file_path):
 def update_table(self):
     usage_times_ = load(data_path)
     table = self.query_one(DataTable)
-    for app in usage_times_:
-        table.update_cell(app, "1", app)
-        table.update_cell(app, "2", seconds_to_hms(usage_times[app]))
-        table.add_row("1", "2")
+    time.sleep(2)
+    table.clear()
+    #
+    # for app in usage_times_:
+    #     table.add_row(app, seconds_to_hms(usage_times_[app]), key=app)
+    #     table.add_row("1", "2")
+    # for app in usage_times_:
+    #     table.update_cell(app, "1", app)
+    #     table.update_cell(app, "2", seconds_to_hms(usage_times[app]))
+    #     table.add_row("1", "2")
 
 
 class ScreenTimes(App):
@@ -37,11 +43,22 @@ class ScreenTimes(App):
         table = self.query_one(DataTable)
         table.add_column("Application", key="1")
         table.add_column("Time", key="2")
-        table.add_row("1", "2", key="3")
         _usage_times = load(data_path)
         for app_ in _usage_times:
             table.add_row(app_, seconds_to_hms(_usage_times[app_]), key=app_)
-        self.set_interval(3, update_table(self), repeat=0)
+        #self.set_interval(1, update_table(self), repeat=0)
+
+    def on_key(self, event: events.Key) -> None:
+        if event.key == "<Escape>":
+
+            table = self.query_one(DataTable)
+            table.clear()
+            time.sleep(3)
+            table.add_column("Application", key="1")
+            table.add_column("Time", key="2")
+            _usage_times = load(data_path)
+            for app_ in _usage_times:
+                table.add_row(app_, seconds_to_hms(_usage_times[app_]), key=app_)
 
     def on_button_pressed(self) -> None:
         self.exit()
