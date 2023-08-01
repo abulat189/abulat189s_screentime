@@ -19,6 +19,15 @@ def load(file_path):
         return json.load(json_file)
 
 
+def update_table(self):
+    usage_times = load(data_path)
+    table = self.query_one(DataTable)
+    table.clear()
+    time.sleep(3)
+    for app in usage_times:
+        table.add_row(app, seconds_to_hms(usage_times[app]), key=app)
+
+
 class screentimes(App):
     def compose(self) -> ComposeResult:
         yield DataTable()
@@ -27,22 +36,12 @@ class screentimes(App):
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
         table.add_columns("Application", "Time")
+        usage_times = load(data_path)
         for app in usage_times:
             table.add_row(app, seconds_to_hms(usage_times[app]), key=app)
 
-    def on_key(self, event: events.Key("r", "r")) -> None:
-        table = self.query_one(DataTable)
-        table.add_row("test", "test")
-        table.clear()
-        time.sleep(5)
-        for app in usage_times:
-            table.add_row(app, seconds_to_hms(usage_times[app]), key=app)
-
-    # async def on_key(self, event):
-    #     if event.key == "enter":
-    #         table = self.query_one(DataTable)
-    #         for app in usage_times:
-    #             table.update_cell(app, 'Time', seconds_to_hms(usage_times[app]))
+    def set_interval(self, interval=2):
+        update_table()
 
     def on_button_pressed(self) -> None:
         self.exit()
